@@ -1,10 +1,17 @@
 #include <SPI.h>
 
+typedef struct SENSOR_NODE{
+  float q[4];
+} Node;
+
+static Node nodes[4];
+
+
 #define SDA_PORT PORTD
 #define SDA_PIN 3
 #define SCL_PORT PORTD
 #define SCL_PIN 2
-#define I2C_FASTMODE 1 
+#define I2C_FASTMODE 1
 
 #define SOFTI2C 1
 
@@ -12,6 +19,10 @@
 #include <avr/io.h>
 #include <Wire.h>
 
+// MULTI MODE MASTER ADDRESSES
+#define NODE_ID  1
+#define I2C_ADDRESS_CENTRAL_SLAVE  0xFE
+#define I2C_ADDRESS_SENSOR_NODE    0x23
 
 //Magnetometer Registers
 #define WHO_AM_I_AK8975A 0x00 // should return 0x48
@@ -174,6 +185,8 @@ enum Gscale {
   GFS_2000DPS
 };
 
+static bool sendFlag = false;
+
 // Specify sensor full scale
 uint8_t Gscale = GFS_250DPS;
 uint8_t Ascale = AFS_2G;
@@ -216,6 +229,8 @@ uint32_t Now = 0;        // used to calculate integration interval
 float ax, ay, az, gx, gy, gz, mx, my, mz; // variables to hold latest sensor data values 
 float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
 float eInt[3] = {0.0f, 0.0f, 0.0f};       // vector to hold integral error for Mahony method
+
+static char networkBuffer[9];
 
 void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz){
     float q1 = q[0], q2 = q[1], q3 = q[2], q4 = q[3];   // short name local variable for readability
@@ -421,15 +436,13 @@ void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, fl
 void setup(){
     Serial.begin(115200);
     
-    if(SOFTI2C){
     if (!i2c_init())
       Serial.println(F("Initialization error. SDA or SCL are low"));
     else
       Serial.println(F("...done"));
-    }
-    else{
-      Wire.begin();
-    }
+      
+    Wire.begin(I2C_ADDRESS_SENSOR_NODE);
+    Wire.onReceive(receiveI2C);
     
     // Set up the interrupt pin, its set as active high, push-pull
     pinMode(intPin, INPUT);
@@ -544,10 +557,10 @@ void loop(){
               Serial.print("mx = "); Serial.print( (int)mx ); 
               Serial.print(" my = "); Serial.print( (int)my ); 
                Serial.print(" mz = "); Serial.print( (int)mz ); Serial.println(" mG");*/
-                Serial.print(q[0]);
+                /*Serial.print(q[0]);
                 Serial.print(" "); Serial.print(q[1]); 
                 Serial.print(" "); Serial.print(q[2]); 
-                Serial.print(" "); Serial.println(q[3]);
+                Serial.print(" "); Serial.println(q[3]);*/
             }               
 
             yaw   = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3]);   
@@ -574,6 +587,50 @@ void loop(){
             blinkOn = ~blinkOn;
             count = millis();  
         }
+    }
+    
+    if(sendFlag){
+        int16_t qTemp;
+        int byteCount = 1;
+        networkBuffer[0] = NODE_ID;
+        Serial.print("Original: ");
+        for(int i = 0; i < 4; ++i){
+            qTemp = (int16_t)(q[i]*10000);
+            networkBuffer[byteCount] = (char)((qTemp & 0xFF00) >> 8);
+            networkBuffer[byteCount+1] = (char)((qTemp & 0x00FF));
+            byteCount += 2;
+            Serial.print(qTemp); Serial.print(", "); Serial.print(q[i]); Serial.print("\t");
+        }
+        Serial.println();
+        
+        Serial.print("Decoded: ");
+        char* buff = networkBuffer;
+        int nodeID = (int)(buff[0]);
+        count = 1;
+        Serial.print(nodeID);
+        Serial.print("-");
+        for(int i = 0; i < 4; ++i){
+          int16_t temp = (int16_t)(buff[count] << 8) | (int16_t)(buff[count+1]);
+          Serial.print(temp);
+          nodes[nodeID].q[i] = (float)(temp)/10000.0;
+          Serial.print(", ");
+          Serial.print(nodes[nodeID].q[i]);
+          Serial.print("\t");
+          count += 2;
+       }
+       
+      Serial.println();
+
+      Wire.beginTransmission(I2C_ADDRESS_CENTRAL_SLAVE);
+      Wire.write(networkBuffer);
+      if(Wire.endTransmission() == 0){
+        sendFlag = false;
+/*          networkBuffer[0] = NODE_ID;
+          Serial.print(q[0]);
+          Serial.print(" "); Serial.print(q[1]); 
+          Serial.print(" "); Serial.print(q[2]); 
+          Serial.print(" "); Serial.println(q[3]);*/
+      }
     }
 
 }
@@ -1040,4 +1097,13 @@ void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * des
     while (Wire.available()) {
         dest[i++] = Wire.read(); }         // Put read results in the Rx buffer
   }
+}
+
+void receiveI2C(int howMany){
+  sendFlag = true;
+  //counter++;
+  while (Wire.available() > 0) {
+    char c = Wire.read();
+  }
+//  sprintf(strBuffer, "3-count %d", counter);
 }

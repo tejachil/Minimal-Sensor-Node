@@ -32,7 +32,7 @@ import processing.opengl.*;
 
 Serial myPort;  // Create object from Serial class
 
-final String serialPort = "/dev/ttyUSB0"; // replace this with your serial port. On windows you will need something like "COM1".
+final String serialPort = "/dev/ttyUSB2"; // replace this with your serial port. On windows you will need something like "COM1".
 
 float [] q = new float [4];
 float [] hq = null;
@@ -92,7 +92,7 @@ float decodeFloat(String inString) {
 }
 
 void serialEvent(Serial p) {
-  if(p.available() >= 18) {
+  if(p.available() >= 20) {
     String inputString = p.readStringUntil('\n');
     //print(inputString);
     if (inputString != null && inputString.length() > 0) {
@@ -183,6 +183,7 @@ void drawCube() {
   popMatrix();
 }
 
+int counter = 0;
 
 void draw() {
   background(#000000);
@@ -194,6 +195,7 @@ void draw() {
   }
   else {
     quaternionToEuler(q, Euler);
+
     text("Point FreeIMU's X axis to your monitor then press \"h\"", 20, VIEW_SIZE_Y - 30);
   }
   
@@ -226,9 +228,9 @@ void keyPressed() {
 // "An efficient orientation filter for inertial and intertial/magnetic sensor arrays" Chapter 2 Quaternion representation
 
 void quaternionToEuler(float [] q, float [] euler) {
-  euler[0] = atan2(2 * q[1] * q[2] - 2 * q[0] * q[3], 2 * q[0]*q[0] + 2 * q[1] * q[1] - 1); // psi
-  euler[1] = -asin(2 * q[1] * q[3] + 2 * q[0] * q[2]); // theta
-  euler[2] = atan2(2 * q[2] * q[3] - 2 * q[0] * q[1], 2 * q[0] * q[0] + 2 * q[3] * q[3] - 1); // phi
+  euler[0] = atan2(2*(q[0]*q[3]+q[1]*q[2]), 1-2*(q[2]*q[2]+q[3]*q[3]));//atan2(2 * q[1] * q[2] - 2 * q[0] * q[3], 2 * q[0]*q[0] + 2 * q[1] * q[1] - 1); // psi
+  euler[1] = asin(2*(q[0]*q[2]-q[3]*q[1]));//-asin(2 * q[1] * q[3] + 2 * q[0] * q[2]); // theta
+  euler[2] = atan2(2*(q[0]*q[1]+q[2]*q[3]), 1-2*(q[1]*q[1]+q[2]*q[2]));//atan2(2 * q[2] * q[3] - 2 * q[0] * q[1], 2 * q[0] * q[0] + 2 * q[3] * q[3] - 1); // phi
 }
 
 float [] quatProd(float [] a, float [] b) {
