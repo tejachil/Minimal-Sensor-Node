@@ -32,7 +32,7 @@ import processing.opengl.*;
 
 Serial myPort;  // Create object from Serial class
 
-final String serialPort = "/dev/ttyUSB2"; // replace this with your serial port. On windows you will need something like "COM1".
+final String serialPort = "/dev/ttyUSB1"; // replace this with your serial port. On windows you will need something like "COM1".
 
 float [] q = new float [4];
 float [] hq = null;

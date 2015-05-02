@@ -592,7 +592,8 @@ void loop(){
     if(sendFlag){
         int16_t qTemp;
         int byteCount = 1;
-        networkBuffer[0] = NODE_ID;
+        networkBuffer[0] = (char)NODE_ID;
+
         Serial.print("Original: ");
         for(int i = 0; i < 4; ++i){
             qTemp = (int16_t)(q[i]*10000);
@@ -602,24 +603,6 @@ void loop(){
             Serial.print(qTemp); Serial.print(", "); Serial.print(q[i]); Serial.print("\t");
         }
         Serial.println();
-        
-        Serial.print("Decoded: ");
-        char* buff = networkBuffer;
-        int nodeID = (int)(buff[0]);
-        count = 1;
-        Serial.print(nodeID);
-        Serial.print("-");
-        for(int i = 0; i < 4; ++i){
-          int16_t temp = (int16_t)(buff[count] << 8) | (int16_t)(buff[count+1]);
-          Serial.print(temp);
-          nodes[nodeID].q[i] = (float)(temp)/10000.0;
-          Serial.print(", ");
-          Serial.print(nodes[nodeID].q[i]);
-          Serial.print("\t");
-          count += 2;
-       }
-       
-      Serial.println();
 
       Wire.beginTransmission(I2C_ADDRESS_CENTRAL_SLAVE);
       Wire.write(networkBuffer);

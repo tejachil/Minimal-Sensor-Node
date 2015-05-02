@@ -17,5 +17,5 @@ void loop() {
   Wire.write(counter);
   Wire.endTransmission();
   Serial.println(counter);
-  delay(100);
+  delay(10);
 }

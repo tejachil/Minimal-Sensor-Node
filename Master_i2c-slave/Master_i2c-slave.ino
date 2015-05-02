@@ -30,25 +30,25 @@ void receiveI2C(int howMany){
   }
   int nodeID = (int)(buff[0]);
   count = 1;
-  Serial.print(nodeID);
-  Serial.print("-");
+//  Serial.print(nodeID);
+//  Serial.print("-");
   for(int i = 0; i < 4; ++i){
-    int16_t temp = (int16_t)(buff[count] << 8) | (int16_t)(buff[count+1]);
-    Serial.print(temp);
+    int16_t temp = ((int16_t)(buff[count] & 0xFF)<< 8) | (int16_t)(buff[count+1] & 0xFF);
+    //Serial.print(temp);
     nodes[nodeID].q[i] = (float)(temp)/10000.0;
-    Serial.print(", ");
-    Serial.print(nodes[nodeID].q[i]);
-    Serial.print("\t");
+    //Serial.print(", ");
+    //Serial.print(nodes[nodeID].q[i]);
+    //Serial.print("\t");
     count += 2;
   }
-  Serial.println();
+  //Serial.println();
 
-  /*Serial.print(nodeID);
-  Serial.print('-');
+//  Serial.print(nodeID);
+ // Serial.print('-');
   if(nodeID == 1){
-    Serial.print(nodes[nodeID].q[0],2);
-    Serial.print(" "); Serial.print(nodes[nodeID].q[1],2); 
-    Serial.print(" "); Serial.print(nodes[nodeID].q[2],2); 
-    Serial.print(" "); Serial.println(nodes[nodeID].q[3],2);
-  }*/
+    Serial.print(nodes[nodeID].q[0],4);
+    Serial.print(" "); Serial.print(nodes[nodeID].q[1],4); 
+    Serial.print(" "); Serial.print(nodes[nodeID].q[2],4); 
+    Serial.print(" "); Serial.println(nodes[nodeID].q[3],4);
+  }
 }
