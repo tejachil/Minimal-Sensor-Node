@@ -2,7 +2,7 @@
 #include <avr/io.h>
 #include <Wire.h>
 
-// Software I2C Stuff
+// Software I2C
 #define SDA_PORT PORTD
 #define SDA_PIN 3
 #define SCL_PORT PORTD
@@ -10,6 +10,7 @@
 #define I2C_FASTMODE 1
 #include <SoftI2CMaster.h>
 
+// Float 16 libraries
 #include <float16.h>
 #include <float16.c>
 
