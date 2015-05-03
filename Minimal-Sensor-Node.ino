@@ -20,7 +20,7 @@ static Node nodes[4];
 #include <Wire.h>
 
 // MULTI MODE MASTER ADDRESSES
-#define NODE_ID  1
+#define NODE_ID  3
 #define I2C_ADDRESS_CENTRAL_SLAVE  0xFE
 #define I2C_ADDRESS_SENSOR_NODE    0x23
 

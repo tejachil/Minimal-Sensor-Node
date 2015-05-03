@@ -12,11 +12,29 @@ void setup() {
   Serial.begin(115200);
   Wire.begin(I2C_ADDRESS_CENTRAL_SLAVE);
   Wire.onReceive(receiveI2C);
+  Serial.println("Succesfully setup Master Node");
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-
+  Serial.print(nodes[1].q[0],4);
+  Serial.print(" "); Serial.print(nodes[1].q[1],4); 
+  Serial.print(" "); Serial.print(nodes[1].q[2],4); 
+  Serial.print(" "); Serial.print(nodes[1].q[3],4);
+  Serial.print(", "); 
+  Serial.print(nodes[2].q[0],4);
+  Serial.print(" "); Serial.print(nodes[2].q[1],4); 
+  Serial.print(" "); Serial.print(nodes[2].q[2],4); 
+  Serial.print(" "); Serial.print(nodes[2].q[3],4);
+  Serial.print(", "); 
+  Serial.print(nodes[3].q[0],4);
+  Serial.print(" "); Serial.print(nodes[3].q[1],4); 
+  Serial.print(" "); Serial.print(nodes[3].q[2],4); 
+  Serial.print(" "); Serial.print(nodes[3].q[3],4);
+  Serial.println();
+//  Serial.print(nodeID);
+ // Serial.print('-');
+  delay(10);
 }
 
 void receiveI2C(int howMany){
@@ -43,12 +61,4 @@ void receiveI2C(int howMany){
   }
   //Serial.println();
 
-//  Serial.print(nodeID);
- // Serial.print('-');
-  if(nodeID == 1){
-    Serial.print(nodes[nodeID].q[0],4);
-    Serial.print(" "); Serial.print(nodes[nodeID].q[1],4); 
-    Serial.print(" "); Serial.print(nodes[nodeID].q[2],4); 
-    Serial.print(" "); Serial.println(nodes[nodeID].q[3],4);
-  }
 }

@@ -76,21 +76,6 @@ void setup()
   //myPort.bufferUntil('\n');
 }
 
-
-float decodeFloat(String inString) {
-  byte [] inData = new byte[4];
-  
-  if(inString.length() == 8) {
-    inData[0] = (byte) unhex(inString.substring(0, 2));
-    inData[1] = (byte) unhex(inString.substring(2, 4));
-    inData[2] = (byte) unhex(inString.substring(4, 6));
-    inData[3] = (byte) unhex(inString.substring(6, 8));
-  }
-      
-  int intbits = (inData[3] << 24) | ((inData[2] & 0xff) << 16) | ((inData[1] & 0xff) << 8) | (inData[0] & 0xff);
-  return Float.intBitsToFloat(intbits);
-}
-
 void serialEvent(Serial p) {
   if(p.available() >= 20) {
     String inputString = p.readStringUntil('\n');
