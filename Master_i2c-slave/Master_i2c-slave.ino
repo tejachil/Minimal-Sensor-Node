@@ -1,4 +1,6 @@
 #include <Wire.h>
+#include <float16.h>
+#include <float16.c>
 
 #define I2C_ADDRESS_CENTRAL_SLAVE  0xFE
 
@@ -51,9 +53,9 @@ void receiveI2C(int howMany){
 //  Serial.print(nodeID);
 //  Serial.print("-");
   for(int i = 0; i < 4; ++i){
-    int16_t temp = ((int16_t)(buff[count] & 0xFF)<< 8) | (int16_t)(buff[count+1] & 0xFF);
+    uint16_t temp = ((uint16_t)(buff[count] & 0xFF)<< 8) | (uint16_t)(buff[count+1] & 0xFF);
     //Serial.print(temp);
-    nodes[nodeID].q[i] = (float)(temp)/10000.0;
+    nodes[nodeID].q[i] = returnfloat32(&temp);//(float)(temp)/10000.0;
     //Serial.print(", ");
     //Serial.print(nodes[nodeID].q[i]);
     //Serial.print("\t");

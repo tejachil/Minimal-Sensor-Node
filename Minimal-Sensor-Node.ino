@@ -1,23 +1,23 @@
 #include <SPI.h>
+#include <avr/io.h>
+#include <Wire.h>
+
+// Software I2C Stuff
+#define SDA_PORT PORTD
+#define SDA_PIN 3
+#define SCL_PORT PORTD
+#define SCL_PIN 2
+#define I2C_FASTMODE 1
+#include <SoftI2CMaster.h>
+
+#include <float16.h>
+#include <float16.c>
 
 typedef struct SENSOR_NODE{
   float q[4];
 } Node;
 
 static Node nodes[4];
-
-
-#define SDA_PORT PORTD
-#define SDA_PIN 3
-#define SCL_PORT PORTD
-#define SCL_PIN 2
-#define I2C_FASTMODE 1
-
-#define SOFTI2C 1
-
-#include <SoftI2CMaster.h>
-#include <avr/io.h>
-#include <Wire.h>
 
 // MULTI MODE MASTER ADDRESSES
 #define NODE_ID  3
@@ -465,7 +465,6 @@ void setup(){
     
     // Get magnetometer calibration from AK8975A ROM
     initAK8975A(magCalibration);
-    
 
     MagRate = 100; // set magnetometer read rate in Hz; 10 to 100 (max) Hz are reasonable values
 }
@@ -590,13 +589,13 @@ void loop(){
     }
     
     if(sendFlag){
-        int16_t qTemp;
+        uint16_t qTemp;
         int byteCount = 1;
         networkBuffer[0] = (char)NODE_ID;
 
         Serial.print("Original: ");
         for(int i = 0; i < 4; ++i){
-            qTemp = (int16_t)(q[i]*10000);
+            qTemp = returnfloat16(&q[i]);
             networkBuffer[byteCount] = (char)((qTemp & 0xFF00) >> 8);
             networkBuffer[byteCount+1] = (char)((qTemp & 0x00FF));
             byteCount += 2;
@@ -1025,68 +1024,36 @@ void MPU6050SelfTest(float * destination) // Should return percent deviation fro
 
 // Wire.h read and write protocols
 void writeByte(uint8_t address, uint8_t subAddress, uint8_t data){
-  if(SOFTI2C){
-    i2c_start((address << 1) | I2C_WRITE);
-    i2c_write(subAddress);
-    i2c_write(data);
-    i2c_stop();
-  }
-  else{
-    Wire.beginTransmission(address);  // Initialize the Tx buffer
-    Wire.write(subAddress);           // Put slave register address in Tx buffer
-    Wire.write(data);                 // Put data in Tx buffer
-    Wire.endTransmission();           // Send the Tx buffer
-  }
+  i2c_start((address << 1) | I2C_WRITE);
+  i2c_write(subAddress);
+  i2c_write(data);
+  i2c_stop();
 }
 
 uint8_t readByte(uint8_t address, uint8_t subAddress){
-  if(SOFTI2C){
-    uint8_t data; // `data` will store the register data	 
-    i2c_start((address << 1) | I2C_WRITE);
-    i2c_write(subAddress);
-    i2c_rep_start((address << 1) | I2C_READ);
-    data = i2c_read(true);
-    i2c_stop();
-    
-    return data;
-  }
-  else{
-    uint8_t data; // `data` will store the register data	 
-    Wire.beginTransmission(address);         // Initialize the Tx buffer
-    Wire.write(subAddress);	                 // Put slave register address in Tx buffer
-    Wire.endTransmission(false);             // Send the Tx buffer, but send a restart to keep connection alive
-    Wire.requestFrom(address, (uint8_t) 1);  // Read one byte from slave register address 
-    data = Wire.read();                      // Fill Rx buffer with result
-    return data;                             // Return data read from slave register
-  }
+  uint8_t data; // `data` will store the register data	 
+  i2c_start((address << 1) | I2C_WRITE);
+  i2c_write(subAddress);
+  i2c_rep_start((address << 1) | I2C_READ);
+  data = i2c_read(true);
+  i2c_stop();
+  
+  return data;
 }
 
 void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest){
-  if(SOFTI2C){
-    i2c_start((address << 1) | I2C_WRITE);
-    i2c_write(subAddress);
-    i2c_rep_start((address << 1) | I2C_READ);
-    for(int i = 0; i < count; ++i){
-      dest[i] = i2c_read((i == (count - 1)));
-    }
-    i2c_stop();
+  i2c_start((address << 1) | I2C_WRITE);
+  i2c_write(subAddress);
+  i2c_rep_start((address << 1) | I2C_READ);
+  for(int i = 0; i < count; ++i){
+    dest[i] = i2c_read((i == (count - 1)));
   }
-  else{
-    Wire.beginTransmission(address);   // Initialize the Tx buffer
-    Wire.write(subAddress);            // Put slave register address in Tx buffer
-    Wire.endTransmission(false);       // Send the Tx buffer, but send a restart to keep connection alive
-    uint8_t i = 0;
-        Wire.requestFrom(address, count);  // Read bytes from slave register address 
-    while (Wire.available()) {
-        dest[i++] = Wire.read(); }         // Put read results in the Rx buffer
-  }
+  i2c_stop();
 }
 
 void receiveI2C(int howMany){
   sendFlag = true;
-  //counter++;
   while (Wire.available() > 0) {
     char c = Wire.read();
   }
-//  sprintf(strBuffer, "3-count %d", counter);
 }
