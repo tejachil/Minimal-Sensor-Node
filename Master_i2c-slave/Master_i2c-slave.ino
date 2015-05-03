@@ -3,6 +3,7 @@
 #include <float16.c>
 
 #define I2C_ADDRESS_CENTRAL_SLAVE  0xFE
+#define FLOAT_PRINT_PRECISION      6
 
 typedef struct SENSOR_NODE{
   float q[4];
@@ -19,20 +20,20 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  Serial.print(nodes[1].q[0],4);
-  Serial.print(" "); Serial.print(nodes[1].q[1],4); 
-  Serial.print(" "); Serial.print(nodes[1].q[2],4); 
-  Serial.print(" "); Serial.print(nodes[1].q[3],4);
+  /*Serial.print(nodes[1].q[0],FLOAT_PRINT_PRECISION);
+  Serial.print(" "); Serial.print(nodes[1].q[1],FLOAT_PRINT_PRECISION); 
+  Serial.print(" "); Serial.print(nodes[1].q[2],FLOAT_PRINT_PRECISION); 
+  Serial.print(" "); Serial.print(nodes[1].q[3],FLOAT_PRINT_PRECISION);
   Serial.print(", "); 
-  Serial.print(nodes[2].q[0],4);
-  Serial.print(" "); Serial.print(nodes[2].q[1],4); 
-  Serial.print(" "); Serial.print(nodes[2].q[2],4); 
-  Serial.print(" "); Serial.print(nodes[2].q[3],4);
-  Serial.print(", "); 
-  Serial.print(nodes[3].q[0],4);
-  Serial.print(" "); Serial.print(nodes[3].q[1],4); 
-  Serial.print(" "); Serial.print(nodes[3].q[2],4); 
-  Serial.print(" "); Serial.print(nodes[3].q[3],4);
+  Serial.print(nodes[2].q[0],FLOAT_PRINT_PRECISION);
+  Serial.print(" "); Serial.print(nodes[2].q[1],FLOAT_PRINT_PRECISION); 
+  Serial.print(" "); Serial.print(nodes[2].q[2],FLOAT_PRINT_PRECISION); 
+  Serial.print(" "); Serial.print(nodes[2].q[3],FLOAT_PRINT_PRECISION);
+  Serial.print(", "); */
+  Serial.print(nodes[3].q[0],FLOAT_PRINT_PRECISION);
+  Serial.print(" "); Serial.print(nodes[3].q[1],FLOAT_PRINT_PRECISION); 
+  Serial.print(" "); Serial.print(nodes[3].q[2],FLOAT_PRINT_PRECISION); 
+  Serial.print(" "); Serial.print(nodes[3].q[3],FLOAT_PRINT_PRECISION);
   Serial.println();
 //  Serial.print(nodeID);
  // Serial.print('-');
