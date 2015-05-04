@@ -34,9 +34,21 @@ Serial myPort;  // Create object from Serial class
 
 final String serialPort = "/dev/ttyUSB0"; // replace this with your serial port. On windows you will need something like "COM1".
 
-float [] q = new float [4];
+public class Node { 
+  public float [] q = new float [4]; 
+  
+  void setQ(int index, float value){
+    q[index] = value;
+  }
+}
+
+Node [] nodes = new Node[3];
+
+float [][] q = new float [3][4];
 float [] hq = null;
 float [] Euler = new float [3]; // psi, theta, phi
+
+int qIndex = 0;
 
 int lf = 10; // 10 is '\n' in ASCII
 byte[] inBuffer = new byte[22]; // this is the number of chars on each line from the Arduino (including /r/n)
@@ -65,8 +77,6 @@ void setup()
   
   myPort.clear();
   
-  println("Here");
-  
   /*while (myPort.available() == 0) {
     myPort.write("v");
     myDelay(1000);
@@ -77,19 +87,23 @@ void setup()
 }
 
 void serialEvent(Serial p) {
-  if(p.available() >= 20) {
+  if(p.available() >= 100) {
+    
     String inputString = p.readStringUntil('\n');
-    //print(inputString);
+    
     if (inputString != null && inputString.length() > 0) {
-      String [] inputStringArr = split(inputString, " ");
-      
-      if(inputStringArr.length >= 4) { // q1,q2,q3,q4,\r\n so we have 5 elements
-        q[0] = Float.parseFloat(inputStringArr[0]);
-        q[1] = Float.parseFloat(inputStringArr[1]);
-        q[2] = Float.parseFloat(inputStringArr[2]);
-        q[3] = Float.parseFloat(inputStringArr[3]);
-        println("q0: " + q[0] + " q1: " + q[1] + " q2: " + q[2] + " q3: " + q[3]);
+      String [] eachNodeStringArray = split(inputString, ", ");
+      if(eachNodeStringArray.length < 3)  return;
+      for(int i = 0; i < eachNodeStringArray.length; ++i){
+        String [] inputStringArr = split(eachNodeStringArray[i], " ");
+        if(inputStringArr.length >= 4) { // q1,q2,q3,q4,\r\n so we have 5 elements
+          q[i][0] = Float.parseFloat(inputStringArr[0]);
+          q[i][1] = Float.parseFloat(inputStringArr[1]);
+          q[i][2] = Float.parseFloat(inputStringArr[2]);
+          q[i][3] = Float.parseFloat(inputStringArr[3]);
+        }
       }
+      println("q0: " + q[qIndex][0] + " q1: " + q[qIndex][1] + " q2: " + q[qIndex][2] + " q3: " + q[qIndex][3]);
     }
     count = count + 1;
     /*if(burst == count) { // ask more data when burst completed
@@ -175,18 +189,18 @@ void draw() {
   fill(#ffffff);
   
   if(hq != null) { // use home quaternion
-    quaternionToEuler(quatProd(hq, q), Euler);
+    quaternionToEuler(quatProd(hq, q[qIndex]), Euler);
     text("Disable home position by pressing \"n\"", 20, VIEW_SIZE_Y - 30);
   }
   else {
-    quaternionToEuler(q, Euler);
+    quaternionToEuler(q[qIndex], Euler);
 
     text("Point FreeIMU's X axis to your monitor then press \"h\"", 20, VIEW_SIZE_Y - 30);
   }
   
   textFont(font, 20);
   textAlign(LEFT, TOP);
-  text("Q:\n" + q[0] + "\n" + q[1] + "\n" + q[2] + "\n" + q[3], 20, 20);
+  text("Q:\n" + q[qIndex][0] + "\n" + q[qIndex][1] + "\n" + q[qIndex][2] + "\n" + q[qIndex][3], 20, 20);
   text("Euler Angles:\nYaw (psi)  : " + degrees(Euler[0]) + "\nPitch (theta): " + degrees(Euler[1]) + "\nRoll (phi)  : " + degrees(Euler[2]), 200, 20);
   
   drawCube();
@@ -200,12 +214,21 @@ void keyPressed() {
     println("pressed h");
     
     // set hq the home quaternion as the quatnion conjugate coming from the sensor fusion
-    hq = quatConjugate(q);
+    hq = quatConjugate(q[qIndex]);
     
   }
   else if(key == 'n') {
     println("pressed n");
     hq = null;
+  }
+  else if(key == '1') {
+    qIndex = 0;
+  }
+  else if(key == '2') {
+    qIndex = 1;
+  }
+  else if(key == '3') {
+    qIndex = 2;  
   }
 }
 

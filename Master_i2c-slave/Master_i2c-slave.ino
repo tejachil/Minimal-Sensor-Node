@@ -56,7 +56,9 @@ void receiveI2C(int howMany){
   for(int i = 0; i < 4; ++i){
     uint16_t temp = ((uint16_t)(buff[count] & 0xFF)<< 8) | (uint16_t)(buff[count+1] & 0xFF);
     //Serial.print(temp);
-    nodes[nodeID].q[i] = returnfloat32(&temp);//(float)(temp)/10000.0;
+    float qValue = returnfloat32(&temp);
+    if(qValue <= 1.0 && qValue >= -1.0)
+      nodes[nodeID].q[i] = returnfloat32(&temp);//(float)(temp)/10000.0;
     //Serial.print(", ");
     //Serial.print(nodes[nodeID].q[i]);
     //Serial.print("\t");
