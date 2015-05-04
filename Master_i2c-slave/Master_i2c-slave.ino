@@ -20,7 +20,7 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  /*Serial.print(nodes[1].q[0],FLOAT_PRINT_PRECISION);
+  Serial.print(nodes[1].q[0],FLOAT_PRINT_PRECISION);
   Serial.print(" "); Serial.print(nodes[1].q[1],FLOAT_PRINT_PRECISION); 
   Serial.print(" "); Serial.print(nodes[1].q[2],FLOAT_PRINT_PRECISION); 
   Serial.print(" "); Serial.print(nodes[1].q[3],FLOAT_PRINT_PRECISION);
@@ -29,7 +29,7 @@ void loop() {
   Serial.print(" "); Serial.print(nodes[2].q[1],FLOAT_PRINT_PRECISION); 
   Serial.print(" "); Serial.print(nodes[2].q[2],FLOAT_PRINT_PRECISION); 
   Serial.print(" "); Serial.print(nodes[2].q[3],FLOAT_PRINT_PRECISION);
-  Serial.print(", "); */
+  Serial.print(", "); 
   Serial.print(nodes[3].q[0],FLOAT_PRINT_PRECISION);
   Serial.print(" "); Serial.print(nodes[3].q[1],FLOAT_PRINT_PRECISION); 
   Serial.print(" "); Serial.print(nodes[3].q[2],FLOAT_PRINT_PRECISION); 
