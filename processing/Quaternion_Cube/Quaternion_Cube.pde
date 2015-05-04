@@ -34,16 +34,6 @@ Serial myPort;  // Create object from Serial class
 
 final String serialPort = "/dev/ttyUSB0"; // replace this with your serial port. On windows you will need something like "COM1".
 
-public class Node { 
-  public float [] q = new float [4]; 
-  
-  void setQ(int index, float value){
-    q[index] = value;
-  }
-}
-
-Node [] nodes = new Node[3];
-
 float [][] q = new float [3][4];
 float [] hq = null;
 float [] Euler = new float [3]; // psi, theta, phi
