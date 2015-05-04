@@ -3,10 +3,13 @@ final String SERIAL_DEV = "/dev/ttyUSB0";
 
 Serial serialPort;
 
-float[] side_arm = {100,100,200,100};
+float[] front_arm = {250,150,200,100};
+float[] front_forearm = {front_arm[0],front_arm[1],200,0};
+
+float[] side_arm = {600,150,200,100};
 float[] side_forearm = {side_arm[0],side_arm[1],200,0};
 float size = 100;
-float position = 100;
+float arm_forarm_ratio = 1.4;
 
 float [][] q = new float [3][4];
 float [][] Euler = new float [3][3]; // psi, theta, phi
@@ -18,7 +21,7 @@ float [] eulerArm = new float [3];
 float [] eulerForeArm = new float [3];
  
 void setup(){
-  size(500,350);
+  size(800,400);
   stroke(255);
   
   serialPort = new Serial(this, SERIAL_DEV, 115200);
@@ -57,14 +60,43 @@ void quaternionToEuler(float [] q, float [] euler) {
  
 void draw(){
   background(51);
+  updateSideView();
+  
+  updateFrontView();
+}
+
+void updateFrontView(){
   fill(0);
   noStroke();
-  rect(80, 80, 40, 200, 10, 10, 0, 0);
+  rect(front_arm[0]-10, front_arm[1]-10, 100, 200, 30, 30, 0, 0);
   fill(150);
-  ellipse(100, 45, 70, 70);
+  ellipse(front_arm[0]+45, 45, 70, 70);
   
-  updateArm();
-  updateForearm();
+  updateFrontArm();
+  updateFrontForearm();
+  // draw Arm
+  strokeWeight(4);
+  stroke(200, 0, 0);
+  line(front_arm[0],front_arm[1],front_arm[2],front_arm[3]);
+  // draw elbow
+  ellipse(front_forearm[0],front_forearm[1],10,10);
+  
+  // draw Forearm
+  stroke(0, 0, 200);
+  line(front_forearm[0],front_forearm[1],front_forearm[2],front_forearm[3]);
+  // draw hand
+  ellipse(front_forearm[2],front_forearm[3],10,10);
+}
+
+void updateSideView(){
+  fill(0);
+  noStroke();
+  rect(side_arm[0]-20, side_arm[1]-20, 40, 200, 10, 10, 0, 0);
+  fill(150);
+  ellipse(side_arm[0], 45, 70, 70);
+  
+  updateSideArm();
+  updateSideForearm();
   // draw Arm
   strokeWeight(4);
   stroke(200, 0, 0);
@@ -78,19 +110,35 @@ void draw(){
   // draw hand
   ellipse(side_forearm[2],side_forearm[3],10,10);
 }
+
+void updateFrontForearm(){
+ float x2 = (-cos(eulerForeArm[2]) * size*arm_forarm_ratio) + front_arm[2];
+ float y2 = (-sin(eulerForeArm[2]) * size*arm_forarm_ratio) + front_arm[3];
+ front_forearm[0] = front_arm[2];
+ front_forearm[1] = front_arm[3];
+ front_forearm[2] = x2;
+ front_forearm[3] = y2;
+}
  
-void updateForearm(){
- float x2 = (cos(eulerForeArm[0]) * size*1.4) + side_arm[2];
- float y2 = (sin(eulerForeArm[0]) * size*1.4) + side_arm[3];
+void updateFrontArm(){
+ float x = (-cos(eulerArm[2]) * size) + front_arm[0];
+ float y = (-sin(eulerArm[2]) * size) + front_arm[1];
+ front_arm[2] = x;
+ front_arm[3] = y;
+}
+ 
+void updateSideForearm(){
+ float x2 = (cos(-eulerForeArm[0]) * size*arm_forarm_ratio) + side_arm[2];
+ float y2 = (sin(-eulerForeArm[0]) * size*arm_forarm_ratio) + side_arm[3];
  side_forearm[0] = side_arm[2];
  side_forearm[1] = side_arm[3];
  side_forearm[2] = x2;
  side_forearm[3] = y2;
 }
  
-void updateArm(){
- float x = ( cos(eulerArm[0]) * size) + position;
- float y = ( sin(eulerArm[0]) * size) + position;
+void updateSideArm(){
+ float x = ( cos(-eulerArm[0]) * size) + side_arm[0];
+ float y = ( sin(-eulerArm[0]) * size) + side_arm[1];
  side_arm[2] = x;
  side_arm[3] = y;
 }
