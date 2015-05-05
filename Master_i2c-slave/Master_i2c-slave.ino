@@ -15,7 +15,7 @@ void setup() {
   Serial.begin(115200);
   Wire.begin(I2C_ADDRESS_CENTRAL_SLAVE);
   Wire.onReceive(receiveI2C);
-  Serial.println("Succesfully setup Master Node");
+  //Serial.println("Succesfully setup Master Node");
 }
 
 void loop() {

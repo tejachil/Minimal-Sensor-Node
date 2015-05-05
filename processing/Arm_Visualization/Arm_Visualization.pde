@@ -31,7 +31,7 @@ void serialEvent(Serial p) {
   if(p.available() >= 100) {
     
     String inputString = p.readStringUntil('\n');
-    
+
     if (inputString != null && inputString.length() > 0) {
       String [] eachNodeStringArray = split(inputString, ", ");
       for(int i = 0; i < eachNodeStringArray.length; ++i){
@@ -70,7 +70,7 @@ void updateFrontView(){
   noStroke();
   rect(front_arm[0]-10, front_arm[1]-10, 100, 200, 30, 30, 0, 0);
   fill(150);
-  ellipse(front_arm[0]+45, 45, 70, 70);
+  ellipse(front_arm[0]+40, 100, 70, 70);
   
   updateFrontArm();
   updateFrontForearm();
@@ -93,7 +93,7 @@ void updateSideView(){
   noStroke();
   rect(side_arm[0]-20, side_arm[1]-20, 40, 200, 10, 10, 0, 0);
   fill(150);
-  ellipse(side_arm[0], 45, 70, 70);
+  ellipse(side_arm[0], 90, 70, 70);
   
   updateSideArm();
   updateSideForearm();
